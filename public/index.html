@@ -1,0 +1,293 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SADI AI</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #212121;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  height: 100vh;
+  display: flex;
+}
+
+.sidebar {
+  width: 260px;
+  background: #171717;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  color: #fff;
+  font-size: 23px;
+  font-weight: bold;
+  padding: 12px 5px 22px;
+}
+
+.new-chat {
+  background: #303030;
+  color: white;
+  border: 1px solid #555;
+  padding: 13px;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.history-title {
+  color: #aaa;
+  margin-top: 25px;
+  font-size: 13px;
+}
+
+.history-item {
+  padding: 12px 8px;
+  color: #ddd;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.topbar {
+  padding: 17px;
+  border-bottom: 1px solid #333;
+  font-size: 17px;
+}
+
+#chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 15px 30px;
+  width: 100%;
+}
+
+.msg {
+  max-width: 750px;
+  width: fit-content;
+  padding: 13px 16px;
+  margin: 18px auto;
+  border-radius: 15px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.user {
+  background: #303030;
+  margin-right: max(calc((100% - 750px) / 2), 0px);
+}
+
+.bot {
+  background: transparent;
+  margin-left: max(calc((100% - 750px) / 2), 0px);
+}
+
+.welcome {
+  text-align: center;
+  margin: auto;
+  padding: 30px 10px;
+}
+
+.welcome h1 {
+  font-size: 30px;
+}
+
+.welcome p {
+  color: #aaa;
+}
+
+.composer-area {
+  padding: 12px 15px 18px;
+  background: #212121;
+}
+
+.composer {
+  max-width: 750px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #303030;
+  border: 1px solid #555;
+  border-radius: 25px;
+  padding: 8px 10px 8px 17px;
+}
+
+input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 16px;
+  padding: 10px 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+.send {
+  background: white;
+  color: black;
+  border: none;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  font-size: 20px;
+}
+
+.send:disabled {
+  opacity: 0.5;
+}
+
+.note {
+  color: #999;
+  text-align: center;
+  font-size: 11px;
+  margin-top: 10px;
+}
+
+@media(max-width:600px) {
+  .sidebar {
+    display: none;
+  }
+
+  .msg {
+    max-width: 95%;
+  }
+
+  .user {
+    margin-right: 0;
+  }
+
+  .bot {
+    margin-left: 0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+  <div class="logo">✦ SADI AI</div>
+  <button class="new-chat" onclick="newChat()">＋ New Chat</button>
+  <div class="history-title">Your chats</div>
+  <div class="history-item">Welcome to SADI AI</div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">SADI AI <span style="color:#999">▾</span></div>
+
+  <div id="chat">
+    <div class="welcome" id="welcome">
+      <h1>হ্যালো! 👋</h1>
+      <p>আমি SADI AI। আজ তোমাকে কীভাবে সাহায্য করতে পারি?</p>
+    </div>
+  </div>
+
+  <div class="composer-area">
+    <div class="composer">
+      <input
+        id="message"
+        type="text"
+        placeholder="SADI AI-কে কিছু জিজ্ঞাসা করো..."
+        onkeydown="if(event.key==='Enter') sendMessage()"
+      >
+      <button class="send" id="sendBtn" onclick="sendMessage()">↑</button>
+    </div>
+    <div class="note">SADI AI ভুল উত্তর দিতে পারে। গুরুত্বপূর্ণ তথ্য যাচাই করো।</div>
+  </div>
+
+</main>
+
+<script>
+async function sendMessage() {
+  const input = document.getElementById("message");
+  const chat = document.getElementById("chat");
+  const sendBtn = document.getElementById("sendBtn");
+  const msg = input.value.trim();
+
+  if (!msg || sendBtn.disabled) return;
+
+  const welcome = document.getElementById("welcome");
+  if (welcome) welcome.remove();
+
+  const userDiv = document.createElement("div");
+  userDiv.className = "msg user";
+  userDiv.textContent = msg;
+  chat.appendChild(userDiv);
+
+  input.value = "";
+
+  const botDiv = document.createElement("div");
+  botDiv.className = "msg bot";
+  botDiv.textContent = "ভাবছি...";
+  chat.appendChild(botDiv);
+
+  sendBtn.disabled = true;
+  chat.scrollTop = chat.scrollHeight;
+
+  try {
+    const response = await fetch("/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message: msg })
+    });
+
+    const answer = await response.text();
+
+    if (!response.ok) {
+      throw new Error(answer || "Server error");
+    }
+
+    botDiv.textContent = answer || "কোনো উত্তর পাওয়া যায়নি।";
+
+  } catch (error) {
+    botDiv.textContent = "সমস্যা হয়েছে: " + error.message;
+    console.error("SADI AI Error:", error);
+  }
+
+  sendBtn.disabled = false;
+  input.focus();
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function newChat() {
+  const chat = document.getElementById("chat");
+  chat.innerHTML = `
+    <div class="welcome" id="welcome">
+      <h1>হ্যালো! 👋</h1>
+      <p>আমি SADI AI। আজ তোমাকে কীভাবে সাহায্য করতে পারি?</p>
+    </div>
+  `;
+}
+</script>
+
+</body>
+</html>
+
